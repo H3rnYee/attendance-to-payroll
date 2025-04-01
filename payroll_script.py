@@ -157,7 +157,7 @@ for col in range(3, last_col + 1):  # Assuming data starts from column C
                 ["NSK Incentive", "", "", "", "", NSK],
                 ["IAR Incentive", "", "", "", "", "INSERT IAR INCENTIVE"],
                 ["ABR Incentive", "", "", "", "", "INSERT ABR INCENTIVE"],
-                ["Gross Total", "", "", "", "", "=SUM(F11:F21)"]
+                ["Gross Total", "", "", "", "", "=SUM(F11:F19)"]
     ]
                 break
         print(strip_employee_name,work_level)
@@ -178,17 +178,18 @@ for col in range(3, last_col + 1):  # Assuming data starts from column C
                 if sheet_name == "NIGHT":
                     shift_time = "Shift Incentive - Night  "
                     shift_incentive = 11
-                shift_incentive_pay = shift_incentive * total_count
+                shift_incentive_count = total_count + non_shift_count + holiday_non_shift_count
+                shift_incentive_pay = shift_incentive * shift_incentive_count
                 payroll_data = [
                 ["", "Unit", "", "Rate", "", "Total"],
                 ["Shift", total_count, "", daily_rate, "", Shift],
                 ["Non-Shift", non_shift_count, "", daily_rate * 1.5, "per day", non_shift_amount],
                 ["Holiday - Shift", holiday_shift_count, "", daily_rate, "per day", holiday_shift_amount],
                 ["Holiday - Non-Shift", holiday_non_shift_count, "", daily_rate * 2, "per day", holiday_non_shift_amount],
-                ["Hardship Incentive", total_count, "", 8.00, "", total_count * 8],
+                ["Hardship Incentive", (total_count + non_shift_count + holiday_non_shift_count), "", 8.00, "", shift_incentive_count * 8],
                 ["Attendance Incentive", attendance_incentive, "", 100.00, "", attendance_incentive*100],
                 ["Paid Leave",paid_leave_count,"", daily_rate, "per day" , paid_leave_count * daily_rate],
-                [shift_time, total_count, "", shift_incentive, "", shift_incentive_pay],
+                [shift_time, shift_incentive_count, "", shift_incentive, "", shift_incentive_pay],
                 ["Gross Total", "", "", "", "", "=SUM(F11:F18)"]
     ]
                 break
@@ -220,27 +221,73 @@ for col in range(3, last_col + 1):  # Assuming data starts from column C
 
         ws["A3"] = f"NRIC No. : {NRIC}"
 
-        ws["A4"] = f"FIN : {NRIC}"
+        ws["A4"] = f"FIN : {NRIC}" #Need to change to FIN
 
-        ws["A5"] = f"Work Permit No. : {NRIC}"
+        ws["A5"] = f"Work Permit No. : {NRIC}" #Need to change to Work Permit No.
 
         bank = sheet_rate_WP.cell(row = save_row, column = 12).value
         ws["A6"] = f"Bank : {bank}"
 
         bank_account = sheet_rate_WP.cell(row = save_row, column = 13).value
         ws["A7"] = f"Bank Accoutn No. : {bank_account}"
+        Designation = sheet_rate_WP.cell(row = save_row, column = 3).value
+        Date_of_Payment = sheet_rate_WP.cell(row = 52, column = 3).value
+        Service_period = sheet_rate_WP.cell(row = 51, column = 3).value
 
         ws["E2"] = "Designation :  "
-        ws["F2"] = "=JAN!C20"
+        ws["F2"] = Designation
         ws["E3"] = "Service Period :"
-        ws["F3"] = "=JAN!C51"
+        ws["F3"] = Service_period
         ws["E4"] = "Date of Payment :"
-        ws["F4"] = "=JAN!C52"
+        ws["F4"] = Date_of_Payment
         ws["E5"] = "Mode of Payment : "
         ws["F5"] = "Bank Transfer"
 
+        side = Side(border_style='thin',color="000000")
+        for row in ws.iter_rows(min_row=12, max_row=16, min_col=2, max_col=2):
+            for cell in row:
+                cell.border = Border(left=side,right=side,top=side,bottom=side)
+
+
     else:
+        for row in ws.iter_rows(min_row=2, max_row=7, min_col=1, max_col=5):
+            for cell in row:
+                cell.font = Font(bold=True, name ="Calibri", size = 11) 
+        # Format headers
+        ws.sheet_view.showGridLines = False
+        ws.merge_cells("A1:G1")
+        ws["A1"] = "PAY SLIP"
+        ws["A1"].font = Font(name="Calibri", bold=True, size=22)
+        ws["A1"].alignment = Alignment(horizontal="center")
         NRIC = sheet_rate_EMPLOYEE.cell(row = save_row, column = 4).value
+        # Employee details
+        ws["A2"] = f"Name of Employee : {employee_name}"
+
+        ws["A3"] = f"NRIC No. : {NRIC}"
+
+        bank = sheet_rate_EMPLOYEE.cell(row = save_row, column = 13).value
+        ws["A4"] = f"Bank : {bank}"
+
+        bank_account = sheet_rate_EMPLOYEE.cell(row = save_row, column = 14).value
+        ws["A5"] = f"Bank Accoutn No. : {bank_account}"
+        Designation = sheet_rate_EMPLOYEE.cell(row = save_row, column = 3).value
+        Date_of_Payment = sheet_rate_EMPLOYEE.cell(row = 110, column = 3).value
+        Service_period = sheet_rate_EMPLOYEE.cell(row = 109, column = 3).value
+
+        ws["E2"] = "Designation :  "
+        ws["F2"] = Designation
+        ws["E3"] = "Service Period :"
+        ws["F3"] = Service_period
+        ws["E4"] = "Date of Payment :"
+        ws["F4"] = Date_of_Payment
+        ws["E5"] = "Mode of Payment : "
+        ws["F5"] = "Bank Transfer"
+
+        side = Side(border_style='thin',color="000000")
+        for row in ws.iter_rows(min_row=12, max_row=16, min_col=2, max_col=2):
+            for cell in row:
+                cell.border = Border(left=side,right=side,top=side,bottom=side)
+
 
     
     # Auto-adjust column widths
